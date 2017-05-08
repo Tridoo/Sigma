@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="source">120dp</dimen>
+    <dimen name="bonus">80dp</dimen>
+
+    <dimen name="margin_1">80dp</dimen>
+    <dimen name="margin_2">-25dp</dimen>
+    <dimen name="margin_3">40dp</dimen>
+    <dimen name="margin_tile">4dp</dimen>
+
+    <dimen name="txt_1">25sp</dimen>
+    <dimen name="txt_2">40sp</dimen>
+    <dimen name="txt_3">34sp</dimen>
+    <dimen name="txt_4">35sp</dimen>
+    <dimen name="txt_5">50sp</dimen>
+
+</resources>

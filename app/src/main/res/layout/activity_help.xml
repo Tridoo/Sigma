@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#5d7fa1">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <com.google.android.gms.ads.AdView
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/banner_scores"
+            android:id="@+id/banerHelp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="5dp"
+            android:layout_weight="0" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivHelp1"
+            android:src="@mipmap/help_1"
+            android:layout_weight="2" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivHelp2"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:src="@mipmap/help_2"
+            android:layout_weight="2" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivHelp3"
+            android:src="@mipmap/help_3"
+            android:layout_weight="2" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivHelp4"
+            android:src="@mipmap/help_4"
+            android:layout_weight="2" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivHelp5"
+            android:src="@mipmap/help_5"
+            android:layout_weight="2" />
+    </LinearLayout>
+
+</RelativeLayout>

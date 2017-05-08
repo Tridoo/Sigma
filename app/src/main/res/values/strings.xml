@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Sigma</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_menu">ca-app-pub-2530185123591218/5395772084</string>
+    <string name="banner_scores">ca-app-pub-2530185123591218/5395772084</string>
+    <string name="banner_game">ca-app-pub-2530185123591218/6872505283</string>
+
+    <!--<string name="facebook_app_id">1881074785456442</string>
+    <string name="link">https://play.google.com/store/apps/details?id=tridoo.sigma</string>-->
+
+    <!--<string name="app_id">877180023819</string>-->
+    <!--<string name="package_name">tridoo.sigma</string>-->
+
+    <string name="ftp_host">wirt03.biznes-host.pl</string>
+    <string name="ftp_dir">/domains/rafalpalasz.pl/public_ftp/sigma/</string>
+    <string name="ftp_login">virt8641</string>
+    <string name="ftp_pass">01c1472d</string>
+
+    <string name="error">Network error</string>
+    <string name="new_global_score">Saving new top score</string>
+
+</resources>

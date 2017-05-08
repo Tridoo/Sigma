@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#5d7fa1"
+    android:id="@+id/layGameMain">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/banerGame"
+        android:id="@+id/layHeader"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:baselineAligned="false"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:paddingBottom="3dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="fill_horizontal"
+            android:gravity="center_vertical"
+            android:id="@+id/layPoints">
+
+            <TextView
+                android:layout_width="@dimen/source"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvPoints"
+                android:background="@drawable/bg_round"
+                android:textSize="@dimen/txt_4"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:layout_marginStart="5dp"
+                android:gravity="end"
+                android:paddingEnd="5dp"
+                android:paddingStart="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:layout_weight="2"
+            android:id="@+id/layBonus1">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/bonus"
+                android:id="@+id/ivBonus1"
+                android:src="@mipmap/cube_disable"
+                android:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvCounterB1"
+                android:textColor="#ffffff"
+                android:layout_marginTop="-15dp"
+                android:layout_marginStart="10dp"
+                android:textSize="@dimen/txt_3" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/bonus"
+                android:layout_height="10dp"
+                android:id="@+id/progressBarB1"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="fill_horizontal"
+            android:layout_weight="2"
+            android:id="@+id/layBonus2">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/bonus"
+                android:id="@+id/ivBonus2"
+                android:src="@mipmap/bomb_disable"
+                android:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:id="@+id/tvCounterB2"
+                android:textColor="#ffffff"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="-15dp"
+                android:layout_marginStart="10dp"
+                android:textSize="@dimen/txt_3" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/bonus"
+                android:layout_height="10dp"
+                android:id="@+id/progressBarB2"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:layout_weight="2"
+            android:id="@+id/layBonus3">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/bonus"
+                android:id="@+id/ivBonus3"
+                android:src="@mipmap/minus_disable"
+                android:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvCounterB3"
+                android:textColor="#ffffff"
+                android:layout_marginTop="-15dp"
+                android:layout_marginStart="10dp"
+                android:textSize="@dimen/txt_3" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/bonus"
+                android:layout_height="10dp"
+                android:id="@+id/progressBarB3"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:layout_weight="2"
+            android:id="@+id/layBonus4">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/bonus"
+                android:id="@+id/ivBonus4"
+                android:src="@mipmap/plus_disable"
+                android:layout_gravity="fill_horizontal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tvCounterB4"
+                android:textColor="#ffffff"
+                android:layout_marginTop="-15dp"
+                android:layout_marginStart="10dp"
+                android:textSize="@dimen/txt_3" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/bonus"
+                android:layout_height="10dp"
+                android:id="@+id/progressBarB4"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.gms.ads.AdView
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/banner_game"
+        android:id="@+id/banerGame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        />
+
+    <TextView
+        android:layout_height="@dimen/source"
+        android:id="@+id/tvSource"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="#ffffff"
+        android:gravity="center"
+        android:textSize="@dimen/txt_5"
+        android:layout_marginBottom="10dp"
+        android:layout_width="@dimen/source"
+        android:layout_marginTop="10dp" />
+
+    <GridLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentStart="true"
+        android:id="@+id/layTiles"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_above="@+id/tvSource"
+        android:layout_below="@id/layHeader">
+
+    </GridLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/layEndButtons">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivEnd"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:src="@mipmap/end" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnShare"
+            android:layout_below="@+id/ivEnd"
+            android:layout_centerHorizontal="true"
+            android:src="@mipmap/share_off" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnExit"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:src="@mipmap/exit"
+            android:layout_margin="@dimen/margin_3" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnRestart"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:src="@mipmap/restart"
+            android:layout_margin="@dimen/margin_3" />
+    </RelativeLayout>
+
+
+</RelativeLayout>
