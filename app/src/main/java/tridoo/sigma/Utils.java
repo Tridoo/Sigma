@@ -1,9 +1,16 @@
 package tridoo.sigma;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -62,8 +69,60 @@ public class Utils {
     }
 
 
-    public static String getID(Activity activity){
+    public static String getUserEmail(Activity activity, boolean showoRequest) {
+        String email;
+        Context context = activity.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
+                email = getEmailFromAccount(context);
+            } else {
+                email = getId(activity);
+            }
+        } else {
+            email = getEmailFromAccount(context);
+        }
+        return email;
+    }
+
+
+    public static String getId(Activity activity) {
         return Settings.Secure.getString(activity.getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    private static String getEmailFromAccount(Context context) {
+        Account[] accounts = AccountManager.get(context).getAccountsByType("com.google");
+
+        if (accounts.length > 0) {
+            return accounts[0].name;
+        } else return null;
+    }
+
+    public static String getFtpFileName(int size, boolean isTimer) {
+        StringBuilder builder = new StringBuilder("AA_scores_");
+        builder.append(size == 5 ? "5_" : "6_");
+        builder.append(isTimer ? "t" : "a");
+        builder.append(".txt");
+        return builder.toString();
+    }
+
+    public static List<String> getAllFtpFileNames() {
+        List<String> result = new ArrayList<>(4);
+        result.add(getFtpFileName(5, false));
+        result.add(getFtpFileName(5, true));
+        result.add(getFtpFileName(6, false));
+        result.add(getFtpFileName(6, true));
+        return result;
+    }
+
+    public static String generateNick(){
+        Calendar calendar1 = Calendar.getInstance();
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.set(2017, 11, 22);
+
+        long diffInMilis = calendar1.getTimeInMillis() - calendar2.getTimeInMillis();
+        long diff = diffInMilis / (60 * 10000); //co 10 min
+
+        return "Player" + diff;
     }
 
 }

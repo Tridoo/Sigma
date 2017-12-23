@@ -11,8 +11,8 @@ public class Config {
     public static final int START_QUANTITY = 5;
     public static final int TIMER_SECONDS = 60;
 
-    public static final int REQUEST_1 = 701;
-    public static final int REQUEST_2 = 702;
+    public static final int REQUEST_SHARE = 701; //udostepnianie
+    public static final int REQUEST_ACCOUNTS = 702; //pobranie emaila
 
     public static final boolean IS_ADS=true;
 }

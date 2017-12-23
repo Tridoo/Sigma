@@ -94,10 +94,10 @@ public class GameTimerActivity extends GameActivity {
     }
 
     @Override
-    protected void gameOver(){
+    protected void gameOver() {
         super.gameOver();
         stopwatch.cancel();
-        isGameOver =true;
+        isGameOver = true;
     }
 
     @Override
@@ -132,9 +132,9 @@ public class GameTimerActivity extends GameActivity {
 
     @Override
     protected void stoperUnpause() {
-        stopwatch =new Stopwatch((long)(Float.valueOf(remainingTime.getText().toString())*1000), 50, remainingTime,progressBar,this);
+        stopwatch = new Stopwatch((long) (Float.valueOf(remainingTime.getText().toString()) * 1000), 50, remainingTime, progressBar, this);
         stopwatch.start();
-        isTimeActiv =true;
+        isTimeActiv = true;
     }
 
     private final class TileDragListener implements View.OnDragListener {

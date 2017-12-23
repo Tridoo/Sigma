@@ -1,5 +1,6 @@
 package tridoo.sigma;
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -22,13 +23,13 @@ public class GlobalScoresActivity extends ScoresActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setProgressVisibility(true);
-        String file= getFtpFileName();
-        String newNick=getIntent().getStringExtra("newNick");
-        ftpTask=new FtpTask(this,false);
-        if( newNick!=null ) {
-            ftpTask.execute(file,getIntent().getStringExtra("email"),newNick);
-        }
-        else ftpTask.execute(file);
+        String file = Utils.getFtpFileName(size, isTimer);
+
+        FtpTaskArgs args = new FtpTaskArgs(this, OperationType.READ_SCORE);
+        args.setFileName(file);
+
+        ftpTask = new FtpTask(args);
+        ftpTask.execute();
     }
 
 
@@ -47,6 +48,8 @@ public class GlobalScoresActivity extends ScoresActivity {
     }
 
     private void addScore(GridLayout scoreTable, float txtSize, int counter, Map.Entry<String, Integer> scores) {
+
+
         TextView tvPosition = new TextView(this);
         tvPosition.setText(String.format(Locale.US,"%d.  ", counter));
         tvPosition.setTextSize(txtSize);
@@ -67,15 +70,13 @@ public class GlobalScoresActivity extends ScoresActivity {
         scoreTable.addView(tvPosition);
         scoreTable.addView(tvNick);
         scoreTable.addView(tvScore);
-    }
 
-    private String getFtpFileName() {
-        String name = "scores_";
-        name += getSize() == 5 ? "5_" : "6_";
-        name += isTimer ? "t" : "a";
-        return name+=".txt";
+        if (scores.getKey().equals(nick)) {
+            tvPosition.setTextColor(Color.GREEN);
+            tvNick.setTextColor(Color.GREEN);
+            tvScore.setTextColor(Color.GREEN);
+        }
     }
-
 
     private void setProgressVisibility(boolean visible){
         findViewById(R.id.progresScore).setVisibility(visible ? View.VISIBLE : View.GONE);

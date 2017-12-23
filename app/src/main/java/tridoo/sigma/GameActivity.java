@@ -40,8 +40,8 @@ import java.util.Set;
 
 abstract class GameActivity extends Activity {
     private int maxGlobalScore;
-    private String file;
-    private String email;
+    private String fileName;
+    private String userId;
     private String nick;
 
     protected int maxNumber;
@@ -49,6 +49,7 @@ abstract class GameActivity extends Activity {
     private int arraryValues[][];
     private boolean checkedPositions[][];
     protected boolean isTimer;
+    private boolean isFirstRun;
     private int points;
     private List<Integer> backgrounds;
     private TextView pointsCounter;
@@ -57,22 +58,29 @@ abstract class GameActivity extends Activity {
     protected GameScreenController screenController;
     private FtpTask ftpTask;
     private boolean isBackPressed;
+    private DAO dao;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        screenController =new GameScreenController(this);
+        screenController = new GameScreenController(this);
 
-        context=getApplicationContext();
+        context = getApplicationContext();
         generateHeader();
-        pointsCounter =(TextView)findViewById(R.id.tvPoints);
+        pointsCounter = (TextView) findViewById(R.id.tvPoints);
 
-        size =getIntent().getIntExtra("poziom",1);
+        size = getIntent().getIntExtra("level", 1);
+        isFirstRun = getIntent().getBooleanExtra("isFirstRun", false);
+        userId = getIntent().getStringExtra("userId");
+        nick = getIntent().getStringExtra("nick");
+        isTimer = getIntent().getBooleanExtra("isTimer", false);
+        fileName = Utils.getFtpFileName(size, isTimer);
+
         backgrounds = Utils.getBackgruonds(size);
 
         screenController.generateEmptyTiles(size);
         screenController.setEndButtons();
-        getFtpData(); //zawiera update xywy
+        if(!isFirstRun) getFtpData();
     }
 
     @Override
@@ -83,12 +91,12 @@ abstract class GameActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if(ftpTask!=null && ftpTask.getStatus()== AsyncTask.Status.RUNNING) {
+        if (ftpTask != null && ftpTask.getStatus() == AsyncTask.Status.RUNNING) {
             showSavingGlobalScore();
-            isBackPressed=true;
+            isBackPressed = true;
             return;
         }
-        if(points ==0 || isGameOver()) {
+        if (points == 0 || isGameOver()) {
             super.onBackPressed();
             return;
         }
@@ -139,20 +147,20 @@ abstract class GameActivity extends Activity {
         mAdView.loadAd(adRequest);
     }
 
-    protected void newGame(){
-        points =0;
-        maxNumber =1;
-        arraryValues =new int[size +2][size +2];
-        checkedPositions =new boolean[size +2][size +2];
+    protected void newGame() {
+        points = 0;
+        maxNumber = 1;
+        arraryValues = new int[size + 2][size + 2];
+        checkedPositions = new boolean[size + 2][size + 2];
         screenController.setSource(1);
         screenController.addInitialTiles(size);
         screenController.setEndVisibility(false);
         pointsCounter.setText(String.valueOf(0));
     }
 
-    public int getBackground(int points){
-        int size= backgrounds.size();
-        if (points>=size) return backgrounds.get(size-1);
+    public int getBackground(int points) {
+        int size = backgrounds.size();
+        if (points >= size) return backgrounds.get(size - 1);
         else return backgrounds.get(points);
     }
 
@@ -185,26 +193,26 @@ abstract class GameActivity extends Activity {
         }
     }
 
-    public Set<Tile> getNeighbors(Tile tile){
-        int pX=tile.getPosInGrid()[0];
-        int pY=tile.getPosInGrid()[1];
-        int value= arraryValues[pX][pY];
+    public Set<Tile> getNeighbors(Tile tile) {
+        int pX = tile.getPosInGrid()[0];
+        int pY = tile.getPosInGrid()[1];
+        int value = arraryValues[pX][pY];
 
-        checkedPositions[pX][pY]=true;
-        Set<Tile> setToChange=new HashSet<>();
+        checkedPositions[pX][pY] = true;
+        Set<Tile> setToChange = new HashSet<>();
         setToChange.add(tile);
-        List<Tile> setToCheck=new ArrayList<>();
-        List<Tile> tmp= getNeighborsFiltrated(tile, value);
+        List<Tile> setToCheck = new ArrayList<>();
+        List<Tile> tmp = getNeighborsFiltrated(tile, value);
         setToChange.addAll(tmp);
         setToCheck.addAll(tmp);
 
         ListIterator<Tile> iterator = setToCheck.listIterator();
         while (iterator.hasNext()) {
             Tile pTile = iterator.next();
-            tmp= getNeighborsFiltrated(pTile, value);
-            if (!tmp.isEmpty()){
+            tmp = getNeighborsFiltrated(pTile, value);
+            if (!tmp.isEmpty()) {
                 setToChange.addAll(tmp);
-                for (Tile neighbour: tmp){
+                for (Tile neighbour : tmp) {
                     iterator.add(neighbour);
                     iterator.previous();
                 }
@@ -213,21 +221,21 @@ abstract class GameActivity extends Activity {
         return setToChange;
     }
 
-    private List<Tile> getNeighborsFiltrated(Tile tile, int value){
-        List<Tile> neighbours=new ArrayList<>();
-        int pX=tile.getPosInGrid()[0];
-        int pY=tile.getPosInGrid()[1];
+    private List<Tile> getNeighborsFiltrated(Tile tile, int value) {
+        List<Tile> neighbours = new ArrayList<>();
+        int pX = tile.getPosInGrid()[0];
+        int pY = tile.getPosInGrid()[1];
 
         for (Point point : Maps.nextTitleCoordinates) {
-            if (isAddNeighbor(pX-point.x, pY-point.y, value))
-                neighbours.add(getTile(pX-point.x, pY-point.y));
+            if (isAddNeighbor(pX - point.x, pY - point.y, value))
+                neighbours.add(getTile(pX - point.x, pY - point.y));
         }
-        checkedPositions[pX][pY]=true;
+        checkedPositions[pX][pY] = true;
         return neighbours;
     }
 
-    private boolean isAddNeighbor(int x, int y, int value){
-        return (!checkedPositions[x][y] && arraryValues[x][y]==value);
+    private boolean isAddNeighbor(int x, int y, int value) {
+        return (!checkedPositions[x][y] && arraryValues[x][y] == value);
     }
 
     @Nullable
@@ -242,7 +250,7 @@ abstract class GameActivity extends Activity {
     }
 
     public void clearCheckedPositions() {
-        checkedPositions =new boolean[size +2][size +2];
+        checkedPositions = new boolean[size + 2][size + 2];
     }
 
     private void addPoints(int points){
@@ -260,26 +268,40 @@ abstract class GameActivity extends Activity {
         return true;
     }
 
-    protected void gameOver(){
+    protected void gameOver() {
         screenController.setEndVisibility(true);
-        if(points >0) {
-            saveScore(points, isTimer); //rowniez globalny
+        if (points > 0) {
+            saveScore(points, isTimer);
         }
         setShareButton(points);
     }
 
-    private void saveScore(int points, boolean isTimer){
-        DAO dao=new DAO(context);
-        dao.addScore(points, size,isTimer);
-        if (points> Config.EDGE_6) dao.setUsableSize6();
-        if (points> maxGlobalScore)  {
-            try {
-                ftpTask= new FtpTask(this,true); //potrzebny status przy zamykaniu aktywnosci
-                ftpTask.execute(getFtpFileName(), getEmail(), getNick(),String.valueOf(points));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            maxGlobalScore =points;
+    private void saveScore(int points, boolean isTimer) {
+        saveScoreLocal(points, isTimer);
+        if (points > maxGlobalScore) {
+            Toast.makeText(getApplicationContext(), "New record !!", Toast.LENGTH_LONG).show();
+            maxGlobalScore = points;
+            sendScoreToFTP(points);
+        }
+    }
+
+    private void saveScoreLocal(int points, boolean isTimer) {
+        DAO dao = getDao();
+        dao.addScore(points, size, isTimer);
+        if (points > Config.EDGE_6) dao.setUsableSize6();
+    }
+
+    private void sendScoreToFTP(int points) {
+        try {
+            FtpTaskArgs args = new FtpTaskArgs(this, OperationType.SAVE_SCORE);
+            args.setScore(points);
+            args.setFileName(fileName);
+            args.setUserId(userId);
+            args.setNick(nick);
+            new FtpTask(args).execute();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -314,7 +336,7 @@ abstract class GameActivity extends Activity {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             Toast.makeText(context, "NEED PERMISSION", Toast.LENGTH_LONG).show();
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Config.REQUEST_1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Config.REQUEST_SHARE);
         }
     }
 
@@ -411,15 +433,16 @@ abstract class GameActivity extends Activity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,  String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case Config.REQUEST_1: {
-                if (grantResults.length > 0  && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            case Config.REQUEST_SHARE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     share(points);
                 } else {
                     // brak uprawnien
+                    //todo toast ?
                 }
-                return;
+                break;
             }
         }
     }
@@ -432,33 +455,11 @@ abstract class GameActivity extends Activity {
         return arraryValues;
     }
 
-    public void getFtpData(){ //wynik ustawiany w ftp onPostExecute
-        file = getFtpFileName();
-        nick = getNick();
-        email= getEmail();
-        new FtpTask(this,false).execute(file, getEmail(), nick);
-    }
-
-    private String getFtpFileName() {
-        if (file !=null) return file;
-        String name = "scores_";
-        int size = getIntent().getIntExtra("poziom", 1);
-        boolean isTimer = getIntent().getBooleanExtra("isTimer", false);
-        name += size == 5 ? "5_" : "6_";
-        name += isTimer ? "t" : "a";
-        return name+=".txt";
-    }
-
-    private String getNick(){
-        if (nick !=null) return nick;
-        String nick=getIntent().getStringExtra("nick");
-        if (nick==null) nick = getIntent().getStringExtra("newNick");
-        return nick;
-    }
-
-    private String getEmail(){
-        if (email!=null) return email;
-        return getIntent().getStringExtra("email");
+    public void getFtpData() {
+        FtpTaskArgs args = new FtpTaskArgs(this, OperationType.READ_MAX);
+        args.setUserId(userId);
+        args.setFileName(fileName);
+        new FtpTask(args).execute();
     }
 
     public void showSavingGlobalScore(){
@@ -471,6 +472,11 @@ abstract class GameActivity extends Activity {
 
     public void afterFtpTask(){
         if(isBackPressed) super.onBackPressed();
+    }
+
+    private DAO getDao() {
+        if (dao == null) dao = new DAO(context);
+        return dao;
     }
 
     abstract void generateHeader();

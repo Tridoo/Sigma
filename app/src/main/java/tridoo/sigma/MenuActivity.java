@@ -1,13 +1,10 @@
 package tridoo.sigma;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -19,31 +16,36 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import static tridoo.sigma.Config.REQUEST_2;
-
 
 public class MenuActivity extends Activity {
     private DAO dao;
-    private String nick,email;
-    private boolean isUpdateNick;
+    private String nick, userId;
     private Context context;
+    private EditText eNick;
+    private ImageView btnSave;
+    private boolean isFirstRun = false;
+    private FtpTask ftpTask;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-        context=getApplicationContext();
-        setNick();
+        context = getApplicationContext();
+        eNick = (EditText) findViewById(R.id.eName);
+        btnSave = (ImageView) findViewById(R.id.btnSave);
+        userId = Utils.getId(this);
         setLogoSize6();
         setButtons();
         if (Config.IS_ADS) showAds();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setupNick(); //rozpoznanie pierwszego uruchomienia w tym przy powrocie z innaj aktywnosci
+        setSaveButtonEnable(false);
+    }
 
     private void setButtons() {
         setHelpButton();
@@ -84,7 +86,6 @@ public class MenuActivity extends Activity {
     }
 
     private void setSaveButton() {
-        final ImageView btnSave=(ImageView)findViewById(R.id.btnSave);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,17 +93,19 @@ public class MenuActivity extends Activity {
             }
         });
 
-        TextWatcher watcher= new TextWatcher() {
+        TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {            }
+
             @Override
             public void afterTextChanged(Editable s) {
-                btnSave.setImageDrawable(getResources().getDrawable(R.mipmap.save));
+                setSaveButtonEnable(!s.toString().equals(nick));
             }
         };
-        ((EditText)findViewById(R.id.eName)).addTextChangedListener(watcher);
+        eNick.addTextChangedListener(watcher);
     }
 
     private void setHelpButton() {
@@ -114,19 +117,20 @@ public class MenuActivity extends Activity {
         });
     }
 
-
     private void startActivity(View button) {
+        if (ftpTask != null && ftpTask.getStatus() == AsyncTask.Status.RUNNING) {
+            Toast.makeText(context, R.string.ftp_running, Toast.LENGTH_LONG).show();
+            return;
+        }
         int id = button.getId();
         Intent intent = new Intent(button.getContext(), Maps.activities.get(id));
         if (id != R.id.btnHelp) {
             Bundle bundle = new Bundle();
-            bundle.putInt("poziom", Maps.buttonsSize5.contains(id) ? 5 : 6);
+            bundle.putInt("level", Maps.buttonsSize5.contains(id) ? 5 : 6);
             bundle.putBoolean("isTimer", Maps.buttonsTimer.contains(id));
-            if (isUpdateNick) {
-                bundle.putString("newNick", nick);
-                isUpdateNick=false;
-            } else bundle.putString("nick", nick);
-                bundle.putString("email",email);
+            bundle.putBoolean("isFirstRun", isFirstRun);
+            bundle.putString("nick", nick);
+            bundle.putString("userId", userId);
             intent.putExtras(bundle);
         }
         startActivity(intent);
@@ -151,46 +155,70 @@ public class MenuActivity extends Activity {
         mAdView.loadAd(adRequest);
     }
 
-    private void setNick() {
+    private void setupNick() {
         nick = getDAO().getNick();
-        email = getEmail();
         if (nick.isEmpty()) {
-            if (email.contains("@")) {
-                nick = email.split("@")[0];
-            } else {
-                Date dateStart = new Date();
-                dateStart.setYear(117);
-                dateStart.setMonth(1);
-                dateStart.setDate(1);
-                nick = "Player" + ((new Date().getTime() - dateStart.getTime()) / 10000);
+            isFirstRun = true;
+            String email = Utils.getUserEmail(this, false);
+            if (email != null && !email.isEmpty()){
+                nick = convertEmailToNick(email);
+            } else{
+                nick = Utils.generateNick();
             }
-            isUpdateNick =true;
+            getDAO().setNick(nick);
+        } else {
+            isFirstRun = false;
         }
-        ((EditText) findViewById(R.id.eName)).setText(nick);
+
+        eNick.setText(nick);
     }
 
-    private String getEmail(){
-        String email = getUserEmail();
-        if (email==null){
-            email=Utils.getID(this);
-        }
-        return email;
+    private String convertEmailToNick(String email) {
+        return email.contains("@") ? email.split("@")[0] : Utils.generateNick();
     }
 
     private void updateNick() {
-        String newNick = ((EditText) findViewById(R.id.eName)).getText().toString();
+        String newNick = eNick.getText().toString();
         if (!isNickCorrect(newNick)) {
-            Toast.makeText(context, "Illegal name \nonly letters and numbers \nmin 4 charters long", Toast.LENGTH_LONG).show();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+            showNickError();
             return;
         }
-        nick = newNick;
-        ((ImageView) findViewById(R.id.btnSave)).setImageDrawable(getResources().getDrawable(R.mipmap.save_off));
-        getDAO().setNick(nick);
-        isUpdateNick = true;
-        Toast.makeText(context, "Save successful", Toast.LENGTH_SHORT).show();
+
+        if (newNick.equals(nick)) {
+            setSaveButtonEnable(false);
+            return;
+        }
+
+        if (!isFirstRun) {
+            Toast.makeText(context, "Updating", Toast.LENGTH_LONG).show();
+            updateNickInGlobalScores(nick, newNick, userId);
+        } else {
+            afterNickUpdated(newNick, false);
+        }
+    }
+
+    public void afterNickUpdated(String newNick, boolean isNetworkError) {
+        if (isNetworkError){
+            Toast.makeText(context, R.string.error, Toast.LENGTH_SHORT).show();
+            eNick.setText(nick);
+         }else {
+            nick = newNick;
+            getDAO().setNick(nick);
+            Toast.makeText(context, R.string.save_success, Toast.LENGTH_SHORT).show();
+        }
+        setSaveButtonEnable(false);
         findViewById(R.id.layMenuMain).requestFocus();
+    }
+
+    private void setSaveButtonEnable(boolean isEnable) {
+        int mipmapId = isEnable ? R.mipmap.save : R.mipmap.save_off;
+        btnSave.setImageDrawable(getResources().getDrawable(mipmapId));
+    }
+
+    private void showNickError() {
+        Toast.makeText(context, R.string.illegal_name, Toast.LENGTH_LONG).show();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
     }
 
     private boolean isNickCorrect(String nick){
@@ -198,38 +226,15 @@ public class MenuActivity extends Activity {
         return nick.matches(regex);
     }
 
-    public String getUserEmail() {
-        AccountManager manager = AccountManager.get(context);
-        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.GET_ACCOUNTS}, REQUEST_2);
-        }
-        Account[] accounts = manager.getAccountsByType("com.google");
-        List<String> possibleEmails = new LinkedList<String>();
+    private void updateNickInGlobalScores(String oldNick, String newNick, String userId){
+        FtpTaskArgs ftpArgs = new FtpTaskArgs(this, OperationType.UPDATE_NICK);
+        ftpArgs.setNick(oldNick);
+        ftpArgs.setNewNick(newNick);
+        ftpArgs.setUserId(userId);
+        ftpArgs.setFileNames(Utils.getAllFtpFileNames());
 
-        for (Account account : accounts) {
-            // TODO: Check possibleEmail against an email regex or treat
-            // account.name as an email address only for certain account.type values.
-            possibleEmails.add(account.name);
-        }
-
-        if (!possibleEmails.isEmpty() && possibleEmails.get(0) != null) {
-            return possibleEmails.get(0);
-        }
-        return null;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_2: {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted
-                    setNick();
-                } else {
-                    // permission denied,
-                }
-            }
-        }
+        ftpTask = new FtpTask(ftpArgs);
+        ftpTask.execute();
     }
 
 }

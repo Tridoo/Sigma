@@ -252,13 +252,13 @@
         android:layout_weight="0">
 
         <ImageView
+            android:id="@+id/btnSave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/btnSave"
             android:layout_centerHorizontal="true"
-            android:src="@mipmap/save_off"
             android:layout_centerVertical="true"
-            android:paddingTop="30dp" />
+            android:paddingTop="30dp"
+            android:src="@mipmap/save_off" />
 
         <ImageView
             android:layout_width="wrap_content"
