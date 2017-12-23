@@ -19,7 +19,7 @@ public abstract class ScoresActivity extends Activity {
         isTimer = getIntent().getBooleanExtra("isTimer", false);
         nick = getIntent().getStringExtra("nick");
         generateHeader();
-        if (Config.IS_ADS) showAds();
+        if (Config.SHOW_ADS) showAds();
     }
 
     private void showAds() {

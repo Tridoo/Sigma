@@ -13,7 +13,7 @@ public class HelpActivity  extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
-        if (Config.IS_ADS) showAds();
+        if (Config.SHOW_ADS) showAds();
     }
 
     private void showAds(){

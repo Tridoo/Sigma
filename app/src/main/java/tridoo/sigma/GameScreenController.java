@@ -18,7 +18,7 @@ public class GameScreenController {
 
     public GameScreenController(GameActivity activity) {
         this.activity = activity;
-        source = (TextView)activity.findViewById(R.id.tvSource);
+        source = (TextView) activity.findViewById(R.id.tvSource);
     }
 
     public void generateEmptyTiles(final int size) {
@@ -35,20 +35,7 @@ public class GameScreenController {
     }
 
     private void equaliseTiles(final int size, final GridLayout gridLayout) {
-        gridLayout.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        int margin = activity.getResources().getDimensionPixelSize(R.dimen.margin_tile);
-                        int width = (int) ((gridLayout.getWidth() - 2 * size * margin));
-                        int height = (int) ((gridLayout.getHeight() - 2 * size * margin));
-                        for (int i = 0; i < size * size; i++) {
-                            ((Tile) gridLayout.getChildAt(i)).setWidth(width / size);
-                            ((Tile) gridLayout.getChildAt(i)).setHeight(height / size);
-                        }
-                        gridLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                });
+        gridLayout.getViewTreeObserver().addOnGlobalLayoutListener(new GlobalLayoutListener(gridLayout, size));
     }
 
     private void addTile(GridLayout gridLayout, int i, int j) {
@@ -67,70 +54,70 @@ public class GameScreenController {
         gridLayout.addView(textView, gridParam);
     }
 
-    public void addInitialTiles(int size){
-        Random rnd=new Random();
-        int x, y, ile=0;
+    public void addInitialTiles(int size) {
+        Random rnd = new Random();
+        int x, y, ile = 0;
         Tile tile;
 
-        do{
-            x=rnd.nextInt(size)+1;
-            y=rnd.nextInt(size)+1;
-            if(activity.getArraryValues()[x][y]==1) continue;
-            tile =activity.getTile(x,y);
-            activity.getArraryValues()[x][y]=1;
-            if(activity.getNeighbors(tile).size()>1){
-                activity.getArraryValues()[x][y]=0;
+        do {
+            x = rnd.nextInt(size) + 1;
+            y = rnd.nextInt(size) + 1;
+            if (activity.getArraryValues()[x][y] == 1) continue;
+            tile = activity.getTile(x, y);
+            activity.getArraryValues()[x][y] = 1;
+            if (activity.getNeighbors(tile).size() > 1) {
+                activity.getArraryValues()[x][y] = 0;
                 activity.clearCheckedPositions();
                 continue;
             }
-            setTile(tile,1);
+            setTile(tile, 1);
             ile++;
             activity.clearCheckedPositions();
-        }while(ile< Config.START_QUANTITY);
+        } while (ile < Config.START_QUANTITY);
     }
 
-    public void setTile(Tile aTile, int value){
-        int x= aTile.getPosInGrid()[0];
-        int y= aTile.getPosInGrid()[1];
-        activity.getArraryValues()[x][y]=value;
-        if (value==0) aTile.setText("   ");
+    public void setTile(Tile aTile, int value) {
+        int x = aTile.getPosInGrid()[0];
+        int y = aTile.getPosInGrid()[1];
+        activity.getArraryValues()[x][y] = value;
+        if (value == 0) aTile.setText("   ");
         else aTile.setText(String.valueOf(value));
-        setBackground(aTile,value);
+        setBackground(aTile, value);
     }
 
-    private void cleanAllTiles(){
+    private void cleanAllTiles() {
         GridLayout gridLayout = (GridLayout) activity.findViewById(R.id.layTiles);
         int number = gridLayout.getChildCount();
-        for (int i=0; i<number;i++){
-            setTile((Tile)gridLayout.getChildAt(i),0);
+        for (int i = 0; i < number; i++) {
+            setTile((Tile) gridLayout.getChildAt(i), 0);
         }
     }
 
-    public void setBackground(TextView tile, int points){
-        tile.setBackground(activity.getResources().getDrawable(activity.getBackground(points+1)));
+    public void setBackground(TextView tile, int points) {
+        tile.setBackground(activity.getResources().getDrawable(activity.getBackground(points + 1)));
     }
 
-    public void cleanTiles(Set<Tile> tiles){
-        for(Tile pTile :tiles){
-            setTile(pTile,0);
+    public void cleanTiles(Set<Tile> tiles) {
+        for (Tile pTile : tiles) {
+            setTile(pTile, 0);
         }
     }
 
-    public void setSource(int liczba){
+    public void setSource(int liczba) {
         source.setText(String.valueOf(liczba));
-        setBackground(source,liczba);
+        setBackground(source, liczba);
     }
 
-    public void setEndButtons(){
+    public void setEndButtons() {
         //przycisk udostepniania ustawiany na koncu gry
-        ((ImageView)activity.findViewById(R.id.btnExit)).setOnClickListener(new View.OnClickListener() {
+        ((ImageView) activity.findViewById(R.id.btnExit)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 activity.exit();
             }
         });
 
-        ((ImageView)activity.findViewById(R.id.btnRestart)).setOnClickListener(new View.OnClickListener() {
+        ((ImageView) activity.findViewById(R.id.btnRestart)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setEndVisibility(false);
@@ -140,12 +127,34 @@ public class GameScreenController {
         });
     }
 
-    public void setEndVisibility(boolean isVisible){
-        RelativeLayout lay=(RelativeLayout) activity.findViewById(R.id.layEndButtons);
+    public void setEndVisibility(boolean isVisible) {
+        RelativeLayout lay = (RelativeLayout) activity.findViewById(R.id.layEndButtons);
         lay.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
     }
 
     public TextView getSource() {
         return source;
+    }
+
+    private class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {
+        GridLayout gridLayout;
+        int size;
+
+        public GlobalLayoutListener(GridLayout gridLayout, int size) {
+            this.gridLayout = gridLayout;
+            this.size = size;
+        }
+
+        @Override
+        public void onGlobalLayout() {
+            int margin = activity.getResources().getDimensionPixelSize(R.dimen.margin_tile);
+            int width = (int) ((gridLayout.getWidth() - 2 * size * margin));
+            int height = (int) ((gridLayout.getHeight() - 2 * size * margin));
+            for (int i = 0; i < size * size; i++) {
+                ((Tile) gridLayout.getChildAt(i)).setWidth(width / size);
+                ((Tile) gridLayout.getChildAt(i)).setHeight(height / size);
+            }
+            gridLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        }
     }
 }

@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Set;
 
 public class GameArcadeActivity extends GameActivity {
-    int bonusPoints;
-    Bonus.Type activeBonus;
-    List<Bonus> bonuses;
+    private int bonusPoints;
+    private Bonus.Type activeBonus;
+    private List<Bonus> bonuses;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,46 +39,45 @@ public class GameArcadeActivity extends GameActivity {
 
     @Override
     protected void newGame() {
-        bonusPoints =0;
-        activeBonus =null;
+        bonusPoints = 0;
+        activeBonus = null;
         setProgresBars();
         super.newGame();
     }
 
-
-    private List<Bonus> getBonuses(){
-        List<Bonus> bonuses=new ArrayList<>();
-        for(Bonus.Type type : Bonus.Type.values()){
-            Bonus bonus=new Bonus();
+    private List<Bonus> getBonuses() {
+        List<Bonus> bonuses = new ArrayList<>();
+        for (Bonus.Type type : Bonus.Type.values()) {
+            Bonus bonus = new Bonus();
             bonus.setType(type);
             bonus.setPoints(Maps.bonusPoints.get(type));
-            bonus.setImg((ImageView)findViewById(Maps.bonusImage.get(type)));
+            bonus.setImg((ImageView) findViewById(Maps.bonusImage.get(type)));
             bonus.setIdImgDisable(Maps.bonusImgDisable.get(type));
             bonus.setIdImgOn(Maps.bonusImgOn.get(type));
             bonus.setIdImgOff(Maps.bonusImgOff.get(type));
-            bonus.setProgress((ProgressBar)findViewById(Maps.bonusProgresBar.get(type)));
-            bonus.setCounter((TextView)findViewById(Maps.bonusCounter.get(type)));
+            bonus.setProgress((ProgressBar) findViewById(Maps.bonusProgresBar.get(type)));
+            bonus.setCounter((TextView) findViewById(Maps.bonusCounter.get(type)));
             bonuses.add(bonus);
         }
         return bonuses;
     }
 
-    private void setProgresBars(){
-        for(Bonus bonus: bonuses){
-            int progres=(bonusPoints *100)/bonus.getPoints();
+    private void setProgresBars() {
+        for (Bonus bonus : bonuses) {
+            int progres = (bonusPoints * 100) / bonus.getPoints();
             bonus.getProgress().setProgress(progres);
             bonus.getCounter().setText(progres > 99 ? String.valueOf((int) (progres / 100)) : null);
         }
     }
 
-    private void setBonusTouchListeners(){
+    private void setBonusTouchListeners() {
         screenController.getSource().setOnTouchListener(new BonusTouchListener());
-        for (Bonus bonus: bonuses){
+        for (Bonus bonus : bonuses) {
             bonus.getImg().setOnTouchListener(new BonusTouchListener());
         }
     }
 
-    protected void setTileLiseners(Tile tile){
+    protected void setTileLiseners(Tile tile) {
         tile.setOnTouchListener(new TileTouchListener());
         tile.setOnDragListener(new TileDragListener());
     }
@@ -105,45 +104,47 @@ public class GameArcadeActivity extends GameActivity {
         }
     }
 
-    private void setBonusIcon(Bonus.Type type){
+    private void setBonusIcon(Bonus.Type type) {
         checkUsableBonuses();
-        if (type !=null) {
-            for(Bonus bonus: bonuses) {
-                if (bonus.getType()== type) bonus.getImg().setImageDrawable(getResources().getDrawable(bonus.getIdImgOn()));
+        if (type != null) {
+            for (Bonus bonus : bonuses) {
+                if (bonus.getType() == type)
+                    bonus.getImg().setImageDrawable(getResources().getDrawable(bonus.getIdImgOn()));
             }
         }
     }
-    private boolean isBonusActive(ImageView view){
-        for (Bonus bonus: bonuses){
-            if (bonus.getImg().getId()==view.getId()){
+
+    private boolean isBonusActive(ImageView view) {
+        for (Bonus bonus : bonuses) {
+            if (bonus.getImg().getId() == view.getId()) {
                 return bonus.getPoints() < bonusPoints;
             }
         }
         return false;
     }
 
-    private Bonus.Type getBonusDraged(ImageView iv){
-        for (Bonus bonus: bonuses){
-            if(bonus.getImg().getId()==iv.getId()) return bonus.getType();
+    private Bonus.Type getBonusDraged(ImageView iv) {
+        for (Bonus bonus : bonuses) {
+            if (bonus.getImg().getId() == iv.getId()) return bonus.getType();
         }
         return null;
     }
 
     private void executeBonus(Tile tile) {
-        if (activeBonus ==null) return;
+        if (activeBonus == null) return;
 
-        int value=0;
-        String txt=tile.getText().toString();
-        if (!txt.equals("   ")) value=Integer.valueOf(txt);
+        int value = 0;
+        String txt = tile.getText().toString();
+        if (!txt.equals("   ")) value = Integer.valueOf(txt);
         int newValue;
 
-        switch (activeBonus){
+        switch (activeBonus) {
             case NEW_NUMBER:
                 do {
                     newValue = Utils.getRandomNumber(maxNumber);
-                }while(value==newValue);
-                screenController.setTile(tile,newValue);
-                checkTile(tile,String.valueOf(newValue));
+                } while (value == newValue);
+                screenController.setTile(tile, newValue);
+                checkTile(tile, String.valueOf(newValue));
                 break;
 
             case BOMB:
@@ -153,36 +154,38 @@ public class GameArcadeActivity extends GameActivity {
                 break;
 
             case MINUS:
-                if (value==0) break;
-                newValue=value-1;
-                screenController.setTile(tile,newValue);
-                if (newValue!=0) checkTile(tile,String.valueOf(newValue));
+                if (value == 0) break;
+                newValue = value - 1;
+                screenController.setTile(tile, newValue);
+                if (newValue != 0) checkTile(tile, String.valueOf(newValue));
                 break;
 
             case PLUS:
-                newValue=value+1;
-                if (newValue> maxNumber) maxNumber =newValue;
-                screenController.setTile(tile,newValue);
-                checkTile(tile,String.valueOf(newValue));
+                newValue = value + 1;
+                if (newValue > maxNumber) maxNumber = newValue;
+                screenController.setTile(tile, newValue);
+                checkTile(tile, String.valueOf(newValue));
                 break;
         }
 
-        for (Bonus bonus: bonuses){
-            if (bonus.getType()== activeBonus){
-                bonusPoints -=bonus.getPoints();
+        for (Bonus bonus : bonuses) {
+            if (bonus.getType() == activeBonus) {
+                bonusPoints -= bonus.getPoints();
                 break;
             }
         }
         if (isGameOver()) gameOver();
-        activeBonus =null;
+        activeBonus = null;
         checkUsableBonuses();
         setProgresBars();
     }
 
     private void checkUsableBonuses() {
-        for (Bonus bonus: bonuses){
-            if (bonusPoints >=bonus.getPoints()) bonus.getImg().setImageDrawable(getResources().getDrawable(bonus.getIdImgOff()));
-            else bonus.getImg().setImageDrawable(getResources().getDrawable(bonus.getIdImgDisable()));
+        for (Bonus bonus : bonuses) {
+            if (bonusPoints >= bonus.getPoints())
+                bonus.getImg().setImageDrawable(getResources().getDrawable(bonus.getIdImgOff()));
+            else
+                bonus.getImg().setImageDrawable(getResources().getDrawable(bonus.getIdImgDisable()));
         }
     }
 
@@ -197,7 +200,7 @@ public class GameArcadeActivity extends GameActivity {
         return Config.EDGE_SHARE_ARCADE;
     }
 
-    private final class BonusTouchListener implements View.OnTouchListener {
+    private class BonusTouchListener implements View.OnTouchListener {
         public boolean onTouch(View view, MotionEvent motionEvent) {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                 ClipData data = ClipData.newPlainText("", "");
@@ -221,12 +224,12 @@ public class GameArcadeActivity extends GameActivity {
         }
     }
 
-    private final class TileTouchListener implements  View.OnTouchListener{
+    private class TileTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN){
-                Tile tile=(Tile)v;
-                if (activeBonus !=null){
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Tile tile = (Tile) v;
+                if (activeBonus != null) {
                     executeBonus(tile);
                     setBonusIcon(activeBonus);
                     return true;
@@ -243,17 +246,19 @@ public class GameArcadeActivity extends GameActivity {
         }
     }
 
-    private final class TileDragListener implements View.OnDragListener {
+    private class TileDragListener implements View.OnDragListener {
         @Override
         public boolean onDrag(View v, DragEvent event) {
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    if (((TextView) v).getText().length()==3) screenController.setBackground((TextView) v,-1);
+                    if (((TextView) v).getText().length() == 3)
+                        screenController.setBackground((TextView) v, -1);
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
-                    if (((TextView) v).getText().length()==3) screenController.setBackground((TextView) v,0);
+                    if (((TextView) v).getText().length() == 3)
+                        screenController.setBackground((TextView) v, 0);
                     break;
                 case DragEvent.ACTION_DROP:
                     View view = (View) event.getLocalState();
@@ -264,14 +269,15 @@ public class GameArcadeActivity extends GameActivity {
                             checkTile(tile, tv.getText().toString());
                             screenController.setSource(Utils.getRandomNumber(maxNumber));
                         }
-                    } else if (view instanceof ImageView){
+                    } else if (view instanceof ImageView) {
                         if (isBonusActive((ImageView) view)) {
-                            if (activeBonus ==null) activeBonus = getBonusDraged((ImageView)view);
+                            if (activeBonus == null) activeBonus = getBonusDraged((ImageView) view);
                             executeBonus(tile);
-                        }
-                        else {
-                            if (tile.getText().toString().equals("   ")) screenController.setBackground(tile,0);
-                            else screenController.setTile(tile,Integer.valueOf(tile.getText().toString()));
+                        } else {
+                            if (tile.getText().toString().equals("   "))
+                                screenController.setBackground(tile, 0);
+                            else
+                                screenController.setTile(tile, Integer.valueOf(tile.getText().toString()));
                         }
                     }
                     break;

@@ -48,8 +48,6 @@ public class GlobalScoresActivity extends ScoresActivity {
     }
 
     private void addScore(GridLayout scoreTable, float txtSize, int counter, Map.Entry<String, Integer> scores) {
-
-
         TextView tvPosition = new TextView(this);
         tvPosition.setText(String.format(Locale.US,"%d.  ", counter));
         tvPosition.setTextSize(txtSize);

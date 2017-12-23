@@ -6,7 +6,8 @@ import android.widget.TextView;
 
 
 public class Bonus {
-    public enum Type {NEW_NUMBER, BOMB, PLUS, MINUS};
+    public enum Type {NEW_NUMBER, BOMB, PLUS, MINUS}    ;
+
     private int points;
     private int idImgOff, idImgOn, idImgDisable;
     private ImageView img;

@@ -28,8 +28,6 @@ import java.util.TimeZone;
 
 public class FtpTask extends AsyncTask<String, Void, String> {
     private Activity activity;
-    private String nick,userId, newNick;
-    private boolean isWrite, isReadMax, isNickUpdate;
     private int points;
     private List<Score> scores;
     private boolean isNetworkError;
@@ -39,12 +37,6 @@ public class FtpTask extends AsyncTask<String, Void, String> {
     public FtpTask(FtpTaskArgs ftpArgs) {
         this.ftpArgs = ftpArgs;
         activity = ftpArgs.getActivity();
-    }
-
-    @Deprecated
-    public FtpTask(Activity aActivity, boolean isWrite) {
-        activity = aActivity;
-        if(isWrite) ((GameActivity)activity).showSavingGlobalScore();
     }
 
     protected String doInBackground(String... args) {
@@ -185,7 +177,6 @@ public class FtpTask extends AsyncTask<String, Void, String> {
             case "tridoo.sigma.MenuActivity":
                 postExecuteMenu((MenuActivity) activity, isNetworkError);
                 break;
-
         }
     }
 
@@ -257,25 +248,6 @@ public class FtpTask extends AsyncTask<String, Void, String> {
             sortedHashMap.put((String)entry.getKey(), (Integer) entry.getValue());
         }
         return sortedHashMap;
-    }
-
-    private void addScore(String nick, String userId, int points) {
-        for (Score score : scores) {
-            if (userId.equals(score.userId)) {
-                score.points = points;
-                return;
-            }
-        }
-        scores.add(new Score(nick, userId, points));
-    }
-
-    private void updateNick(String userId, String newNick) {
-        for (Score score : scores) {
-            if (score.userId.equals(userId)) {
-                score.nick = newNick;
-                return;
-            }
-        }
     }
 
     private String getnerateBackupFileName(String name){

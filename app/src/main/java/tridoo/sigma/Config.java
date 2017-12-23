@@ -14,5 +14,5 @@ public class Config {
     public static final int REQUEST_SHARE = 701; //udostepnianie
     public static final int REQUEST_ACCOUNTS = 702; //pobranie emaila
 
-    public static final boolean IS_ADS=true;
+    public static final boolean SHOW_ADS = true;
 }

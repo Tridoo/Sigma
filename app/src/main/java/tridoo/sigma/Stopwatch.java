@@ -16,16 +16,16 @@ public class Stopwatch extends CountDownTimer {
 
     public Stopwatch(long millisInFuture, long countDownInterval, TextView remainingTime, ProgressBar progressBar, GameTimerActivity activity) {
         super(millisInFuture, countDownInterval);
-        this.remainingTime =remainingTime;
-        this.progressBar =progressBar;
-        this.activity =activity;
+        this.remainingTime = remainingTime;
+        this.progressBar = progressBar;
+        this.activity = activity;
     }
 
     @Override
     public void onTick(long millisUntilFinished) {
-        sec=(float)TimeUnit.MILLISECONDS.toMillis(millisUntilFinished)/1000;
-        remainingTime.setText(String.format(Locale.US,"%.2f",sec));
-        progressBar.setProgress(Config.TIMER_SECONDS -(int)sec);
+        sec = (float) TimeUnit.MILLISECONDS.toMillis(millisUntilFinished) / 1000;
+        remainingTime.setText(String.format(Locale.US, "%.2f", sec));
+        progressBar.setProgress(Config.TIMER_SECONDS - (int) sec);
 
     }
 

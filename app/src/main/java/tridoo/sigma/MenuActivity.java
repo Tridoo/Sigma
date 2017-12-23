@@ -37,7 +37,7 @@ public class MenuActivity extends Activity {
         userId = Utils.getId(this);
         setLogoSize6();
         setButtons();
-        if (Config.IS_ADS) showAds();
+        if (Config.SHOW_ADS) showAds();
     }
 
     @Override
@@ -93,19 +93,8 @@ public class MenuActivity extends Activity {
             }
         });
 
-        TextWatcher watcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                setSaveButtonEnable(!s.toString().equals(nick));
-            }
-        };
-        eNick.addTextChangedListener(watcher);
+        NickTextWatcher nickTextWatcher = new NickTextWatcher();
+        eNick.addTextChangedListener(nickTextWatcher);
     }
 
     private void setHelpButton() {
@@ -210,7 +199,7 @@ public class MenuActivity extends Activity {
         findViewById(R.id.layMenuMain).requestFocus();
     }
 
-    private void setSaveButtonEnable(boolean isEnable) {
+    public void setSaveButtonEnable(boolean isEnable) {
         int mipmapId = isEnable ? R.mipmap.save : R.mipmap.save_off;
         btnSave.setImageDrawable(getResources().getDrawable(mipmapId));
     }
@@ -235,6 +224,19 @@ public class MenuActivity extends Activity {
 
         ftpTask = new FtpTask(ftpArgs);
         ftpTask.execute();
+    }
+
+    private class NickTextWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            setSaveButtonEnable(!s.toString().equals(nick));
+        }
     }
 
 }

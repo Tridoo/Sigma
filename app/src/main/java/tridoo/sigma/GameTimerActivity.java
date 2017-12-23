@@ -28,26 +28,26 @@ public class GameTimerActivity extends GameActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        isTimer =true;
+        isTimer = true;
         screenController.getSource().setOnTouchListener(new SourceTouchListener());
         newGame();
     }
 
     @Override
     protected void generateHeader() {
-        ((LinearLayout)findViewById(R.id.layPoints)).setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT,3f));
+        ((LinearLayout) findViewById(R.id.layPoints)).setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3f));
 
-        LinearLayout header=(LinearLayout)findViewById(R.id.layHeader);
-        header.removeViews(1,4);//bonusy
+        LinearLayout header = (LinearLayout) findViewById(R.id.layHeader);
+        header.removeViews(1, 4);//bonusy
 
-        LinearLayout layProgres=new LinearLayout(context);
-        LinearLayout.LayoutParams layParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT,1f);
-        int margin=(int)getResources().getDimension(R.dimen.margin_3);
-        layParams.setMargins(margin/2,0,margin/2,0);
+        LinearLayout layProgres = new LinearLayout(context);
+        LinearLayout.LayoutParams layParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
+        int margin = (int) getResources().getDimension(R.dimen.margin_3);
+        layParams.setMargins(margin / 2, 0, margin / 2, 0);
         layProgres.setLayoutParams(layParams);
         layProgres.setOrientation(LinearLayout.VERTICAL);
 
-        LinearLayout layTime=new LinearLayout(context);
+        LinearLayout layTime = new LinearLayout(context);
         layTime.setLayoutParams(layParams);
         layTime.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -64,14 +64,14 @@ public class GameTimerActivity extends GameActivity {
     }
 
     private void generateExtraTime() {
-        extraTime =new TextSwitcher(context);
-        extraTime.setFactory(mFactory);
+        extraTime = new TextSwitcher(context);
+        extraTime.setFactory(new ViewSwitcherFactory());
         extraTime.setCurrentText(String.valueOf(""));
-        extraTime.setLayoutParams( new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT,2f));
+        extraTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 2f));
     }
 
     private void generateRemainingTime(LinearLayout.LayoutParams layParams) {
-        remainingTime =new TextView(context);
+        remainingTime = new TextView(context);
         remainingTime.setTextSize(getResources().getDimension(R.dimen.txt_2));
         remainingTime.setTextColor(Color.BLACK);
         remainingTime.setGravity(Gravity.START);
@@ -79,7 +79,7 @@ public class GameTimerActivity extends GameActivity {
     }
 
     private void generateProgressBar() {
-        progressBar=new ProgressBar(context,    null, android.R.attr.progressBarStyleHorizontal);
+        progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
         progressBar.setMax(Config.TIMER_SECONDS);
     }
 
@@ -105,7 +105,7 @@ public class GameTimerActivity extends GameActivity {
         return (isGameOver || super.isGameOver());
     }
 
-    protected void setTileLiseners(Tile tile){
+    protected void setTileLiseners(Tile tile) {
         tile.setOnTouchListener(new TileTouchListener());
         tile.setOnDragListener(new TileDragListener());
     }
@@ -127,7 +127,7 @@ public class GameTimerActivity extends GameActivity {
     @Override
     protected void stoperPause() {
         stopwatch.cancel();
-        isTimeActiv =false;
+        isTimeActiv = false;
     }
 
     @Override
@@ -137,7 +137,34 @@ public class GameTimerActivity extends GameActivity {
         isTimeActiv = true;
     }
 
-    private final class TileDragListener implements View.OnDragListener {
+    private void addExtraTimeAnimation() {
+        Animation blink = AnimationUtils.loadAnimation(this, R.anim.blink);
+        blink.setAnimationListener(new AnimationListener());
+        extraTime.setInAnimation(blink);
+    }
+
+    @Override
+    void extraPointsActions(int points) {    }
+
+    @Override
+    void extraBonusesActions() {    }
+
+    private class AnimationListener implements Animation.AnimationListener{
+        @Override
+        public void onAnimationStart(Animation animation) {
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            extraTime.setCurrentText("");
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+        }
+    }
+
+    private class TileDragListener implements View.OnDragListener {
         @Override
         public boolean onDrag(View v, DragEvent event) {
             if (isGameOver) return true;
@@ -145,14 +172,16 @@ public class GameTimerActivity extends GameActivity {
                 case DragEvent.ACTION_DRAG_STARTED:
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    if (((TextView) v).getText().length()==3) screenController.setBackground((TextView) v,-1);
+                    if (((TextView) v).getText().length() == 3)
+                        screenController.setBackground((TextView) v, -1);
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
-                    if (((TextView) v).getText().length()==3) screenController.setBackground((TextView) v,0);
+                    if (((TextView) v).getText().length() == 3)
+                        screenController.setBackground((TextView) v, 0);
                     break;
                 case DragEvent.ACTION_DROP:
                     if (!isTimeActiv) {
-                        isTimeActiv =true;
+                        isTimeActiv = true;
                         stopwatch.start();
                     }
                     View view = (View) event.getLocalState();
@@ -173,17 +202,17 @@ public class GameTimerActivity extends GameActivity {
         }
     }
 
-    private final class TileTouchListener implements  View.OnTouchListener{
+    private class TileTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (isGameOver) return true;
             if (!isTimeActiv) {
-                isTimeActiv =true;
+                isTimeActiv = true;
                 stopwatch.start();
             }
 
-            if (event.getAction() == MotionEvent.ACTION_DOWN){
-                Tile tile=(Tile)v;
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Tile tile = (Tile) v;
                 if (tile.getText().length() == 3) {
                     String value = screenController.getSource().getText().toString();
                     tile.setText(value);
@@ -196,7 +225,7 @@ public class GameTimerActivity extends GameActivity {
         }
     }
 
-    private final class SourceTouchListener implements View.OnTouchListener {
+    private class SourceTouchListener implements View.OnTouchListener {
         public boolean onTouch(View view, MotionEvent motionEvent) {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                 ClipData data = ClipData.newPlainText("", "");
@@ -209,34 +238,15 @@ public class GameTimerActivity extends GameActivity {
         }
     }
 
-    private ViewSwitcher.ViewFactory mFactory = new ViewSwitcher.ViewFactory() {
+    private class ViewSwitcherFactory implements ViewSwitcher.ViewFactory{
         @Override
         public View makeView() {
             TextView tv = new TextView(context);
-            tv.setGravity(Gravity.CENTER |Gravity.BOTTOM);
+            tv.setGravity(Gravity.CENTER | Gravity.BOTTOM);
             tv.setTextColor(Color.GREEN);
             tv.setTextSize(getResources().getDimension(R.dimen.txt_2));
             return tv;
         }
-    };
-
-    private void addExtraTimeAnimation(){
-        Animation blink = AnimationUtils.loadAnimation(this, R.anim.blink);
-        blink.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {                            }
-            @Override
-            public void onAnimationEnd(Animation animation) {  extraTime.setCurrentText("");          }
-            @Override
-            public void onAnimationRepeat(Animation animation) {            }
-        });
-
-        extraTime.setInAnimation(blink);
     }
 
-    @Override
-    void extraPointsActions(int points) {    }
-
-    @Override
-    void extraBonusesActions() {}
 }

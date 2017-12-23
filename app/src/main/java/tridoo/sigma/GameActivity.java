@@ -86,7 +86,11 @@ abstract class GameActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (Config.IS_ADS) showAds();
+        if (Config.SHOW_ADS) showAds();
+    }
+
+    private void onSuperBackPressed(){
+        super.onBackPressed();
     }
 
     @Override
@@ -109,34 +113,9 @@ abstract class GameActivity extends Activity {
         final ArrayList<Integer> itemsSelected = new ArrayList<>();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("End the game?");
-        builder.setMultiChoiceItems(items, selectedItems,
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int selectedItemId,
-                                        boolean isSelected) {
-                        if (isSelected) {
-                            itemsSelected.add(selectedItemId);
-                        } else if (itemsSelected.contains(selectedItemId)) {
-                            itemsSelected.remove(Integer.valueOf(selectedItemId));
-                        }
-                    }
-                })
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (((AlertDialog) dialog).getListView().getCheckedItemPositions().get(0)) {
-                            saveScore(points, isTimer);
-                        }
-                        GameActivity.super.onBackPressed();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener(){
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                stoperUnpause();
-                            }
-                        }
-                );
+        builder.setMultiChoiceItems(items, selectedItems, new MultiChoiceClickListener(itemsSelected))
+                .setPositiveButton("Yes", new PositiveButtonClickListener())
+                .setNegativeButton("No", new NegativeButtonClickListener());
         dialog = builder.create();
         dialog.show();
     }
@@ -276,7 +255,7 @@ abstract class GameActivity extends Activity {
         setShareButton(points);
     }
 
-    private void saveScore(int points, boolean isTimer) {
+    public void saveScore(int points, boolean isTimer) {
         saveScoreLocal(points, isTimer);
         if (points > maxGlobalScore) {
             Toast.makeText(getApplicationContext(), "New record !!", Toast.LENGTH_LONG).show();
@@ -495,4 +474,36 @@ abstract class GameActivity extends Activity {
 
     abstract int getShareMinimum();
 
+    private class MultiChoiceClickListener implements DialogInterface.OnMultiChoiceClickListener {
+        private ArrayList<Integer> itemsSelected;
+
+        public MultiChoiceClickListener(ArrayList<Integer> itemsSelected) {
+            this.itemsSelected = itemsSelected;
+        }
+        @Override
+        public void onClick(DialogInterface dialog, int selectedItemId, boolean isSelected) {
+            if (isSelected) {
+                itemsSelected.add(selectedItemId);
+            } else if (itemsSelected.contains(selectedItemId)) {
+                itemsSelected.remove(Integer.valueOf(selectedItemId));
+            }
+        }
+    }
+
+    private class PositiveButtonClickListener implements DialogInterface.OnClickListener {
+        @Override
+        public void onClick(DialogInterface dialog, int id) {
+            if (((AlertDialog) dialog).getListView().getCheckedItemPositions().get(0)) {
+                saveScore(points, isTimer);
+            }
+            onSuperBackPressed();
+        }
+    }
+
+    private class NegativeButtonClickListener implements DialogInterface.OnClickListener {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            stoperUnpause();
+        }
+    }
 }
