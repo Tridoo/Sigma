@@ -117,7 +117,7 @@ public class Utils {
     public static String generateNick(){
         Calendar calendar1 = Calendar.getInstance();
         Calendar calendar2 = Calendar.getInstance();
-        calendar2.set(2017, 11, 23);
+        calendar2.set(2017, 11, 26, 0, 0);
 
         long diffInMilis = calendar1.getTimeInMillis() - calendar2.getTimeInMillis();
         long diff = diffInMilis / (60 * 10000); //co 10 min
