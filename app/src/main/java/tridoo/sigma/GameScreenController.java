@@ -1,6 +1,8 @@
 package tridoo.sigma;
 
 
+import android.animation.ValueAnimator;
+import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -15,10 +17,23 @@ import java.util.Set;
 public class GameScreenController {
     private GameActivity activity;
     private TextView source;
+    private ValueAnimator sourceAnimator;
 
     public GameScreenController(GameActivity activity) {
         this.activity = activity;
         source = (TextView) activity.findViewById(R.id.tvSource);
+        addSourceAnimator();
+    }
+
+    private void addSourceAnimator(){
+        sourceAnimator = ValueAnimator.ofInt(0, 255);
+        sourceAnimator.setDuration(400);
+
+        sourceAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
+            @Override public void onAnimationUpdate(ValueAnimator animation) {
+                source.setTextColor(Color.argb((int)(animation.getAnimatedValue()), 0, 0, 0));
+            }
+        });
     }
 
     public void generateEmptyTiles(final int size) {
@@ -134,6 +149,14 @@ public class GameScreenController {
 
     public TextView getSource() {
         return source;
+    }
+
+    public ValueAnimator getSourceAnimator() {
+        return sourceAnimator;
+    }
+
+    public void setSourceAnimator(ValueAnimator sourceAnimator) {
+        this.sourceAnimator = sourceAnimator;
     }
 
     private class GlobalLayoutListener implements ViewTreeObserver.OnGlobalLayoutListener {

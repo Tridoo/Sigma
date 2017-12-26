@@ -1,5 +1,6 @@
 package tridoo.sigma;
 
+import android.animation.ValueAnimator;
 import android.content.ClipData;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -214,14 +215,28 @@ public class GameTimerActivity extends GameActivity {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Tile tile = (Tile) v;
                 if (tile.getText().length() == 3) {
+                    addAniamtion(tile);
                     String value = screenController.getSource().getText().toString();
                     tile.setText(value);
                     checkTile(tile, value);
                     screenController.setSource(Utils.getRandomNumber(maxNumber));
+                    screenController.getSourceAnimator().start();
                     return true;
                 }
             }
             return false;
+        }
+
+        private void addAniamtion(final Tile tile){
+            final ValueAnimator anim = ValueAnimator.ofInt(0, 255);
+            anim.setDuration(400);
+
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
+                @Override public void onAnimationUpdate(ValueAnimator animation) {
+                    tile.setTextColor(Color.argb((int)(animation.getAnimatedValue()), 0, 0, 0));
+                }
+            });
+            anim.start();
         }
     }
 

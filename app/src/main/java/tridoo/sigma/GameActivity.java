@@ -146,17 +146,17 @@ abstract class GameActivity extends Activity {
     protected void checkTile(Tile tile, String sValue) {
         boolean isChanges = false;
         int value = Integer.valueOf(sValue);
-        int x=tile.getPosInGrid()[0];
-        int y=tile.getPosInGrid()[1];
+        int x = tile.getPosInGrid()[0];
+        int y = tile.getPosInGrid()[1];
         arraryValues[x][y] = value;
-        screenController.setTile(tile,value);
+        screenController.setTile(tile, value);
         Set<Tile> neighborsList = getNeighbors(tile);
 
         if (neighborsList.size() > 2) {
             if (value == maxNumber) maxNumber++;
             screenController.cleanTiles(neighborsList);
             arraryValues[x][y] = value + 1;
-            screenController.setTile(tile,value+1);
+            screenController.setTile(tile, value + 1);
             int points = Utils.getExtraPoints(value, neighborsList.size());
             addPoints(points);
             isChanges = true;

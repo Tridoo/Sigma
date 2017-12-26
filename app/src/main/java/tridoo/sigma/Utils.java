@@ -98,7 +98,7 @@ public class Utils {
     }
 
     public static String getFtpFileName(int size, boolean isTimer) {
-        StringBuilder builder = new StringBuilder("AA_scores_");
+        StringBuilder builder = new StringBuilder("scores_");
         builder.append(size == 5 ? "5_" : "6_");
         builder.append(isTimer ? "t" : "a");
         builder.append(".txt");

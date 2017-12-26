@@ -1,7 +1,9 @@
 package tridoo.sigma;
 
 
+import android.animation.ValueAnimator;
 import android.content.ClipData;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.DragEvent;
 import android.view.MotionEvent;
@@ -147,7 +149,7 @@ public class GameArcadeActivity extends GameActivity {
                 checkTile(tile, String.valueOf(newValue));
                 break;
 
-            case BOMB:
+            case BOMB: //todo animation?
                 Set<Tile> setTiles = new HashSet<>();
                 setTiles.add(tile);
                 screenController.cleanTiles(setTiles);
@@ -228,21 +230,35 @@ public class GameArcadeActivity extends GameActivity {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                Tile tile = (Tile) v;
+                final Tile tile = (Tile) v;
                 if (activeBonus != null) {
                     executeBonus(tile);
                     setBonusIcon(activeBonus);
                     return true;
                 }
                 if (tile.getText().length() == 3) {
+                    addAniamtion(tile);
                     String value = screenController.getSource().getText().toString();
                     tile.setText(value);
                     checkTile(tile, value);
                     screenController.setSource(Utils.getRandomNumber(maxNumber));
+                    screenController.getSourceAnimator().start();
                     return true;
                 }
             }
             return false;
+        }
+
+        private void addAniamtion(final Tile tile){
+            final ValueAnimator anim = ValueAnimator.ofInt(0, 255);
+            anim.setDuration(400);
+
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
+                @Override public void onAnimationUpdate(ValueAnimator animation) {
+                    tile.setTextColor(Color.argb((int)(animation.getAnimatedValue()), 0, 0, 0));
+                }
+            });
+            anim.start();
         }
     }
 
